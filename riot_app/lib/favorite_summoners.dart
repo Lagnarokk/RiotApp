@@ -9,8 +9,8 @@ class FavoriteSummonersScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Favorite Summoners'),
       ),
-      body: Center(
-        child: Text('List of favorite summoners'),
+      body: const Center(
+        child: Text('No favorite summoners added yet.'),
       ),
     );
   }

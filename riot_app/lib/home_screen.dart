@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'summoner_search.dart';
 import 'favorite_summoners.dart';
 import 'settings.dart';
-import 'user_storage.dart';
+import 'summoner_details.dart';
+import 'match_history.dart';
+import 'champions_list_screen.dart';
+import 'user_storage.dart'; // Ensure this is the correct import
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,7 +15,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: FutureBuilder<String?>(
-          future: UserStorage().getUserName(),
+          future: UserStorageService().getUserData('userName'), // Updated to use UserStorageService
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text('Home');
@@ -55,8 +58,17 @@ class HomeScreen extends StatelessWidget {
               child: const Text('Settings'),
             ),
             ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ChampionsListScreen()),
+                );
+              },
+              child: const Text('Champions List'),
+            ),
+            ElevatedButton(
               onPressed: () async {
-                await UserStorage().removeUserName();
+                await UserStorageService().removeUserData('userName'); // Updated to use UserStorageService
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
               child: const Text('Logout'),

@@ -21,13 +21,13 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
 
   _fetchMatchDetails() async {
     try {
-      var matchDetails = await RiotApiService().fetchMatchDetails(widget.matchId);
+      var details = await RiotApiService().fetchMatchDetails(widget.matchId);
       setState(() {
-        _matchDetails = matchDetails;
+        _matchDetails = details;
       });
     } catch (e) {
       setState(() {
-        _matchDetails = {};
+        _matchDetails = {'error': 'Failed to load match details'};
       });
     }
   }
@@ -38,22 +38,20 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
       appBar: AppBar(
         title: const Text('Match Details'),
       ),
-      body: Center(
-        child: _matchDetails == null
-            ? const CircularProgressIndicator()
-            : ListView(
-                children: [
-                  Text('Game ID: ${_matchDetails!['gameId']}'),
-                  Text('Game Duration: ${_matchDetails!['gameDuration']} seconds'),
-                  ...(_matchDetails!['participants'] as List<dynamic>).map((participant) {
-                    return ListTile(
-                      title: Text(participant['summonerName']),
-                      subtitle: Text('Champion: ${participant['championId']}, KDA: ${participant['kills']}/${participant['deaths']}/${participant['assists']}'),
-                    );
-                  }).toList(),
-                ],
-              ),
-      ),
+      body: _matchDetails == null
+          ? const Center(child: CircularProgressIndicator())
+          : _matchDetails!.containsKey('error')
+              ? Center(child: Text(_matchDetails!['error'] as String))
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Match ID: ${_matchDetails!['matchId']}'),
+                      // Add more details as needed
+                    ],
+                  ),
+                ),
     );
   }
 }

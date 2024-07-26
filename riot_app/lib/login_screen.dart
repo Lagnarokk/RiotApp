@@ -1,42 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'home_screen.dart';
 import 'user_storage.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController _userNameController = TextEditingController();
+  _LoginScreenState createState() => _LoginScreenState();
+}
 
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _userNameController = TextEditingController();
+
+  void _login() async {
+    final userName = _userNameController.text;
+    if (userName.isNotEmpty) {
+      await UserStorageService().saveUserData('userName', userName); // Use saveUserData method
+      Navigator.of(context).pushReplacementNamed('/home');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              'assets/icons/titleIcon.svg',
-              height: 100,
-              width: 100,
-            ),
-            const SizedBox(height: 16),
             TextField(
               controller: _userNameController,
-              decoration: const InputDecoration(labelText: 'Username'),
+              decoration: const InputDecoration(
+                labelText: 'Username',
+              ),
             ),
+            const SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: () async {
-                String userName = _userNameController.text;
-                await UserStorage().saveUserName(userName);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                );
-              },
+              onPressed: _login,
               child: const Text('Login'),
             ),
           ],

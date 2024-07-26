@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'riot_api_service.dart';
-import 'connectivity_service.dart';
 import 'summoner_details.dart';
 
 class SummonerSearchScreen extends StatefulWidget {
@@ -11,29 +9,15 @@ class SummonerSearchScreen extends StatefulWidget {
 }
 
 class _SummonerSearchScreenState extends State<SummonerSearchScreen> {
-  final TextEditingController _summonerController = TextEditingController();
-  String? _summonerData;
+  final TextEditingController _controller = TextEditingController();
 
-  _searchSummoner() async {
-    if (await ConnectivityService().isConnected()) {
-      try {
-        var summonerData = await RiotApiService().fetchSummoner(_summonerController.text);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SummonerDetailsScreen(summonerData: summonerData),
-          ),
-        );
-      } catch (e) {
-        setState(() {
-          _summonerData = 'Error: $e';
-        });
-      }
-    } else {
-      setState(() {
-        _summonerData = 'No internet connection';
-      });
-    }
+  void _searchSummoner() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SummonerDetailsScreen(summonerId: _controller.text),
+      ),
+    );
   }
 
   @override
@@ -42,22 +26,21 @@ class _SummonerSearchScreenState extends State<SummonerSearchScreen> {
       appBar: AppBar(
         title: const Text('Summoner Search'),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _summonerController,
-              decoration: const InputDecoration(labelText: 'Summoner Name'),
+              controller: _controller,
+              decoration: const InputDecoration(
+                labelText: 'Enter Summoner ID',
+              ),
             ),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: _searchSummoner,
               child: const Text('Search'),
             ),
-            const SizedBox(height: 16),
-            _summonerData != null
-                ? Text(_summonerData!)
-                : const Text('Enter a summoner name to search'),
           ],
         ),
       ),
