@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'user_storage.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,7 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() async {
     final userName = _userNameController.text;
     if (userName.isNotEmpty) {
-      await UserStorageService().saveUserData('userName', userName); // Use saveUserData method
+      await UserStorageService().saveUserData('userName', userName);
       Navigator.of(context).pushReplacementNamed('/home');
     }
   }
@@ -31,6 +31,14 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Center(
+              child: SvgPicture.asset(
+                'assets/icons/titleIcon.svg',
+                width: 150, // Adjust the size as needed
+                height: 150, // Adjust the size as needed
+              ),
+            ),
+            const SizedBox(height: 16.0),
             TextField(
               controller: _userNameController,
               decoration: const InputDecoration(

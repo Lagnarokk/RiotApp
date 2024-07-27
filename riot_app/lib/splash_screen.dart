@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
 
 class SplashScreen extends StatefulWidget {
@@ -24,9 +25,10 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text(
-          'Splash Screen',
-          style: Theme.of(context).textTheme.headline4,
+        child: SvgPicture.asset(
+          'assets/icons/titleIcon.svg', 
+          width: 150, 
+          height: 150, 
         ),
       ),
     );

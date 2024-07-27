@@ -2,37 +2,25 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class RiotApiService {
-  final String _apiKey = 'RGAPI-2af735d3-e40f-49ae-997b-a7f984b07c98';
-  final String _baseUrl = 'https://na1.api.riotgames.com';
+  final String _apiKey = 'RGAPI-f078a75c-5290-412b-9d39-f2eba8d1b0c3';
 
-  Future<Map<String, dynamic>> fetchSummonerDetails(String summonerId) async {
+  Future<String> fetchPUUID(String region, String gameName, String tagLine) async {
     final response = await http.get(
-      Uri.parse('$_baseUrl/lol/summoner/v4/summoners/$summonerId?api_key=$_apiKey'),
+      Uri.parse('https://$region.api.riotgames.com/riot/account/v1/accounts/by-riot-id/$gameName/$tagLine?api_key=$_apiKey'),
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['puuid'];
+    } else {
+      throw Exception('Failed to load PUUID');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchSummonerDetailsByPUUID(String subregion, String puuid) async {
+    final response = await http.get(
+      Uri.parse('https://$subregion.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/$puuid?api_key=$_apiKey'),
     );
     return _handleResponse(response);
-  }
-
-  Future<List<String>> fetchMatchHistory(String puuid) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/lol/match/v5/matches/by-puuid/$puuid/ids?api_key=$_apiKey'),
-    );
-    List<dynamic> data = _handleResponse(response);
-    return List<String>.from(data);
-  }
-
-  Future<Map<String, dynamic>> fetchMatchDetails(String matchId) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/lol/match/v5/matches/$matchId?api_key=$_apiKey'),
-    );
-    return _handleResponse(response);
-  }
-
-  Future<List<dynamic>> fetchChampions() async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/lol/platform/v3/champion-rotations?api_key=$_apiKey'),
-    );
-    Map<String, dynamic> data = _handleResponse(response);
-    return List<dynamic>.from(data['champions'] ?? []);
   }
 
   dynamic _handleResponse(http.Response response) {
