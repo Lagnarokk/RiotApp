@@ -1,7 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'riot_api_service.dart';
+import 'favorite_summoners.dart';
 
 class SummonerDetailsScreen extends StatefulWidget {
   final String gameName;
@@ -21,6 +22,16 @@ class SummonerDetailsScreen extends StatefulWidget {
 }
 
 class _SummonerDetailsScreenState extends State<SummonerDetailsScreen> {
+  late Future<Map<String, dynamic>> _summonerDetailsFuture;
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _summonerDetailsFuture = _fetchSummonerDetails();
+    _checkIfFavorite();
+  }
+
   Future<Map<String, dynamic>> _fetchSummonerDetails() async {
     final riotApiService = RiotApiService();
     final puuid = await riotApiService.fetchPUUID(widget.region, widget.gameName, widget.tagLine);
@@ -28,12 +39,48 @@ class _SummonerDetailsScreenState extends State<SummonerDetailsScreen> {
     return summonerDetails;
   }
 
+  void _checkIfFavorite() {
+    _isFavorite = favoriteSummoners.any((summoner) =>
+      summoner['gameName'] == widget.gameName &&
+      summoner['tagLine'] == widget.tagLine &&
+      summoner['region'] == widget.region &&
+      summoner['subregion'] == widget.subregion
+    );
+  }
+
+  void _toggleFavorite(Map<String, dynamic> summonerData) {
+    final profileIconId = summonerData['profileIconId'];
+    final profileIconUrl = 'https://ddragon.leagueoflegends.com/cdn/11.24.1/img/profileicon/$profileIconId.png';
+
+    final summoner = {
+      'gameName': widget.gameName,
+      'tagLine': widget.tagLine,
+      'region': widget.region,
+      'subregion': widget.subregion,
+      'profileIconUrl': profileIconUrl,
+    };
+
+    setState(() {
+      if (_isFavorite) {
+        favoriteSummoners.removeWhere((s) =>
+          s['gameName'] == widget.gameName &&
+          s['tagLine'] == widget.tagLine &&
+          s['region'] == widget.region &&
+          s['subregion'] == widget.subregion
+        );
+      } else {
+        favoriteSummoners.add(summoner);
+      }
+      _isFavorite = !_isFavorite;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Summoner Details')),
       body: FutureBuilder<Map<String, dynamic>>(
-        future: _fetchSummonerDetails(),
+        future: _summonerDetailsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -89,15 +136,15 @@ class _SummonerDetailsScreenState extends State<SummonerDetailsScreen> {
                             ),
                           ),
                           SizedBox(width: 16),
-                          // Add to Favorites Button
+                          // Toggle Favorite Button
                           ElevatedButton.icon(
                             onPressed: () {
-                              // Add to favorites
+                              _toggleFavorite(summonerData);
                             },
-                            icon: Icon(Icons.star),
-                            label: Text('Add to Favorites'),
+                            icon: Icon(_isFavorite ? Icons.star_border : Icons.star),
+                            label: Text(_isFavorite ? 'Remove from Favorites' : 'Add to Favorites'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.yellow[700], // Background color
+                              backgroundColor: _isFavorite ? Colors.red : Colors.yellow[700], // Background color
                               foregroundColor: Colors.white, // Text color
                             ),
                           ),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'summoner_details.dart';
+
+List<Map<String, dynamic>> favoriteSummoners = [];
 
 class FavoriteSummonersScreen extends StatelessWidget {
   const FavoriteSummonersScreen({super.key});
@@ -9,9 +12,35 @@ class FavoriteSummonersScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Favorite Summoners'),
       ),
-      body: const Center(
-        child: Text('No favorite summoners added yet.'),
-      ),
+      body: favoriteSummoners.isEmpty
+          ? const Center(
+              child: Text('No favorite summoners added yet.'),
+            )
+          : ListView.builder(
+              itemCount: favoriteSummoners.length,
+              itemBuilder: (context, index) {
+                final summoner = favoriteSummoners[index];
+                return ListTile(
+                  leading: Image.network(summoner['profileIconUrl']),
+                  title: Text('${summoner['gameName']}#${summoner['tagLine']}'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SummonerDetailsScreen(
+                          gameName: summoner['gameName'],
+                          tagLine: summoner['tagLine'],
+                          region: summoner['region'],
+                          subregion: summoner['subregion'],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
     );
   }
 }
+
+
