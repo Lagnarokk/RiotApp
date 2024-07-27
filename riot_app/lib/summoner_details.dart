@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'riot_api_service.dart';
 import 'favorite_summoners.dart';
+import 'match_history.dart';
 
 class SummonerDetailsScreen extends StatefulWidget {
   final String gameName;
@@ -78,7 +79,11 @@ class _SummonerDetailsScreenState extends State<SummonerDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Summoner Details')),
+      appBar: AppBar(
+        title: Text('Summoner Details'),
+        backgroundColor: Colors.blue, // Blue header color
+        foregroundColor: Colors.white, // White text color
+      ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _summonerDetailsFuture,
         builder: (context, snapshot) {
@@ -125,14 +130,21 @@ class _SummonerDetailsScreenState extends State<SummonerDetailsScreen> {
                           // Matches Button
                           ElevatedButton.icon(
                             onPressed: () {
-                              // Navigate to the match screen
-                              Navigator.pushNamed(context, '/match_screen');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MatchHistoryScreen(
+                                    puuid: summonerData['puuid'],
+                                    subregion: widget.subregion,
+                                  ),
+                                ),
+                              );
                             },
                             icon: Icon(Icons.play_arrow),
                             label: Text('Match History'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue, // Background color
-                              foregroundColor: Colors.white, // Text color
+                              backgroundColor: Colors.blue, // Blue tone for the button
+                              foregroundColor: Colors.white, // White text color
                             ),
                           ),
                           SizedBox(width: 16),

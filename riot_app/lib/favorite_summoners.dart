@@ -11,6 +11,8 @@ class FavoriteSummonersScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Favorite Summoners'),
+        backgroundColor: Colors.blue, // Blue background color for AppBar
+        foregroundColor: Colors.white, // White text color for AppBar
       ),
       body: favoriteSummoners.isEmpty
           ? const Center(
@@ -42,5 +44,3 @@ class FavoriteSummonersScreen extends StatelessWidget {
     );
   }
 }
-
-

@@ -154,7 +154,12 @@ class _SummonerSearchScreenState extends State<SummonerSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Search Summoner')),
+      backgroundColor: Colors.grey[200], // Set the background color
+      appBar: AppBar(
+        title: Text('Search Summoner'),
+        backgroundColor: Colors.blue, // Blue background color
+        foregroundColor: Colors.white, // White text color
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -201,6 +206,10 @@ class _SummonerSearchScreenState extends State<SummonerSearchScreen> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: _searchSummoner,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // Blue tone for the search button
+                foregroundColor: Colors.white, // White text color
+              ),
               child: Text('Search'),
             ),
           ],
