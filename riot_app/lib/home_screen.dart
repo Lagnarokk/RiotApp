@@ -3,6 +3,7 @@ import 'summoner_search.dart';
 import 'favorite_summoners.dart';
 import 'summoner_details.dart';
 import 'user_storage.dart'; // Ensure this is the correct import
+import 'login_screen.dart'; // Import the login screen
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -48,7 +49,10 @@ class HomeScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 await UserStorageService().removeUserData('userName'); // Updated to use UserStorageService
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => LoginScreen()), // Replace with your actual login screen
+                  (route) => false, // Remove all routes from the stack
+                );
               },
               child: const Text('Logout'),
             ),
