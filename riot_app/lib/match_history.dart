@@ -6,38 +6,35 @@ class MatchHistoryScreen extends StatefulWidget {
   final String puuid;
   final String subregion;
 
-  const MatchHistoryScreen({super.key, required this.puuid, required this.subregion});
+  const MatchHistoryScreen({
+    Key? key,
+    required this.puuid,
+    required this.subregion,
+  }) : super(key: key);
 
   @override
   _MatchHistoryScreenState createState() => _MatchHistoryScreenState();
 }
 
 class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
-  Future<List<Map<String, dynamic>>> _fetchMatchHistory() async {
-    final matchIdsResponse = await http.get(Uri.parse(
+  late Future<List<String>> _matchIdsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _matchIdsFuture = _fetchMatchIds();
+  }
+
+  Future<List<String>> _fetchMatchIds() async {
+    final response = await http.get(Uri.parse(
         'https://${widget.subregion}.api.riotgames.com/lol/match/v5/matches/by-puuid/${widget.puuid}/ids?api_key=RGAPI-f078a75c-5290-412b-9d39-f2eba8d1b0c3'));
 
-    if (matchIdsResponse.statusCode != 200) {
+    if (response.statusCode == 200) {
+      final List<dynamic> matchIds = json.decode(response.body);
+      return matchIds.map((id) => id.toString()).toList();
+    } else {
       throw Exception('Failed to load match IDs');
     }
-
-    final matchIds = json.decode(matchIdsResponse.body);
-    final matchDetailsList = <Map<String, dynamic>>[];
-
-    // Fetch details for each match ID
-    for (String matchId in matchIds.take(20)) {
-      final matchDetailsResponse = await http.get(Uri.parse(
-          'https://${widget.subregion}.api.riotgames.com/lol/match/v5/matches/$matchId?api_key=RGAPI-f078a75c-5290-412b-9d39-f2eba8d1b0c3'));
-
-      if (matchDetailsResponse.statusCode == 200) {
-        final matchDetails = json.decode(matchDetailsResponse.body);
-        matchDetailsList.add(matchDetails);
-      } else {
-        throw Exception('Failed to load match details');
-      }
-    }
-
-    return matchDetailsList;
   }
 
   @override
@@ -48,30 +45,22 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
         backgroundColor: Colors.blue, // Blue header color
         foregroundColor: Colors.white, // White text color
       ),
-      backgroundColor: Colors.grey[200], // Gray background color
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _fetchMatchHistory(),
+      body: FutureBuilder<List<String>>(
+        future: _matchIdsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No match history available'));
+            return const Center(child: Text('No matches found'));
           } else {
-            final matches = snapshot.data!;
+            final matchIds = snapshot.data!;
             return ListView.builder(
-              itemCount: matches.length,
+              itemCount: matchIds.length,
               itemBuilder: (context, index) {
-                final match = matches[index];
-                final gameMode = match['info']['gameMode'] ?? 'Unknown';
-                final gameDuration = match['info']['gameDuration'] ?? 0;
-                final durationMinutes = gameDuration ~/ 60;
-                final durationSeconds = gameDuration % 60;
-
                 return ListTile(
-                  title: Text('Game Mode: $gameMode'),
-                  subtitle: Text('Duration: $durationMinutes:$durationSeconds'),
+                  title: Text('Match ID: ${matchIds[index]}'),
                 );
               },
             );
